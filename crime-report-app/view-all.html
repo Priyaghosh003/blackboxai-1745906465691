@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crime Report System - View All Reports</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-['Roboto'] min-h-screen flex flex-col items-center p-4">
+  <header class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800">Crime Report System</h1>
+    <p class="text-gray-600">View all crime reports</p>
+  </header>
+
+  <main class="w-full max-w-4xl bg-white p-6 rounded shadow">
+    <table class="w-full table-auto border-collapse border border-gray-300">
+      <thead>
+        <tr class="bg-gray-200">
+          <th class="border border-gray-300 px-4 py-2">Crime Number</th>
+          <th class="border border-gray-300 px-4 py-2">Type</th>
+          <th class="border border-gray-300 px-4 py-2">Description</th>
+          <th class="border border-gray-300 px-4 py-2">Location</th>
+          <th class="border border-gray-300 px-4 py-2">Date</th>
+          <th class="border border-gray-300 px-4 py-2">Status</th>
+        </tr>
+      </thead>
+      <tbody id="reportsTableBody" class="text-gray-700"></tbody>
+    </table>
+  </main>
+
+  <footer class="mt-auto text-gray-500 text-sm">
+    &copy; 2024 Crime Report System
+  </footer>
+
+  <script>
+    async function loadReports() {
+      const tbody = document.getElementById('reportsTableBody');
+      tbody.innerHTML = '';
+      try {
+        const response = await fetch('http://localhost:3000/reports');
+        if (!response.ok) {
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center text-red-600">Failed to load reports</td></tr>';
+          return;
+        }
+        const reports = await response.json();
+        if (reports.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center">No reports found</td></tr>';
+          return;
+        }
+        reports.forEach(report => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = 
+            '<td class="border border-gray-300 px-4 py-2">' + report.crimeNumber + '</td>' +
+            '<td class="border border-gray-300 px-4 py-2">' + report.type + '</td>' +
+            '<td class="border border-gray-300 px-4 py-2">' + report.description + '</td>' +
+            '<td class="border border-gray-300 px-4 py-2">' + report.location + '</td>' +
+            '<td class="border border-gray-300 px-4 py-2">' + report.date + '</td>' +
+            '<td class="border border-gray-300 px-4 py-2">' + report.status + '</td>';
+          tbody.appendChild(tr);
+        });
+      } catch (error) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-red-600">Error loading reports</td></tr>';
+      }
+    }
+
+    window.onload = loadReports;
+  </script>
+</body>
+</html>
