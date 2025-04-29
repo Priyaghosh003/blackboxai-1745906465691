@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crime Report System - View Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-['Roboto'] min-h-screen flex flex-col items-center p-4">
+  <header class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800">Crime Report System</h1>
+    <p class="text-gray-600">View a crime report by Crime Number</p>
+  </header>
+
+  <main class="w-full max-w-lg bg-white p-6 rounded shadow">
+    <form id="viewForm" class="mb-4">
+      <label for="crimeNumber" class="block font-semibold mb-1">Enter Crime Number</label>
+      <input type="text" id="crimeNumber" name="crimeNumber" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g. CR1234567890" />
+      <button type="submit" class="mt-3 w-full bg-blue-600 text-white font-semibold py-2 rounded hover:bg-blue-700 transition">View Report</button>
+    </form>
+
+    <div id="reportDetails" class="text-gray-700"></div>
+  </main>
+
+  <footer class="mt-auto text-gray-500 text-sm">
+    &copy; 2024 Crime Report System
+  </footer>
+
+  <script>
+    const form = document.getElementById('viewForm');
+    const reportDiv = document.getElementById('reportDetails');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      reportDiv.innerHTML = '';
+      const crimeNumber = form.crimeNumber.value.trim();
+      if (!crimeNumber) {
+        reportDiv.textContent = 'Please enter a crime number.';
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:3000/reports/' + encodeURIComponent(crimeNumber));
+        if (!response.ok) {
+          const errorData = await response.json();
+          reportDiv.textContent = 'Error: ' + (errorData.error || 'Report not found');
+          return;
+        }
+        const report = await response.json();
+        reportDiv.innerHTML = 
+          '<h2 class="text-xl font-bold mb-2">Report Details</h2>' +
+          '<p><strong>Crime Number:</strong> ' + report.crimeNumber + '</p>' +
+          '<p><strong>Type:</strong> ' + report.type + '</p>' +
+          '<p><strong>Description:</strong> ' + report.description + '</p>' +
+          '<p><strong>Location:</strong> ' + report.location + '</p>' +
+          '<p><strong>Date:</strong> ' + report.date + '</p>' +
+          '<p><strong>Status:</strong> ' + report.status + '</p>' +
+          '<h3 class="mt-4 font-semibold">Updates:</h3>' +
+          '<ul class="list-disc list-inside">' + (report.updates && report.updates.length > 0 ? report.updates.map(u => '<li>' + u + '</li>').join('') : '<li>No updates yet</li>') + '</ul>';
+      } catch (error) {
+        reportDiv.textContent = 'Error: Could not connect to server.';
+      }
+    });
+  </script>
+</body>
+</html>
